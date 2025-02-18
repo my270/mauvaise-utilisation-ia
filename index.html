@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercice : Bonne et Mauvaise Utilisation de l'IA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: start;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .column {
+            width: 45%;
+            min-width: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+        .droppable {
+            border: 2px dashed #666;
+            padding: 10px;
+            margin: 10px 0;
+            min-height: 50px;
+            background-color: #fff;
+        }
+        .draggable {
+            background-color: #e0e0e0;
+            padding: 10px;
+            margin: 5px;
+            cursor: move;
+            user-select: none;
+            border-radius: 4px;
+        }
+        .draggable:hover {
+            background-color: #d0d0d0;
+        }
+        .dragging {
+            opacity: 0.5;
+        }
+        .droppable.drag-over {
+            background-color: #f0f0f0;
+            border: 2px dashed #333;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h2>Associe chaque mauvaise utilisation de l'IA à une bonne utilisation correspondante</h2>
+    <div class="container">
+        <div class="column" id="bad-column">
+            <h3>Mauvaises Utilisations</h3>
+            <div class="draggable" draggable="true" id="bad1">Un élève recopie une rédaction générée par l'IA sans modifier un seul mot.</div>
+            <div class="draggable" draggable="true" id="bad2">Un élève copie une réponse d'IA sans chercher à comprendre l'explication.</div>
+            <div class="draggable" draggable="true" id="bad3">Un élève utilise l'IA pour un exposé sans vérifier les sources et tombe sur une fausse information.</div>
+            <div class="draggable" draggable="true" id="bad4">Un élève utilise l'IA pour lister des métiers, mais sans vérifier les biais possibles.</div>
+            <div class="draggable" draggable="true" id="bad5">Un élève entre ses informations personnelles dans un chatbot d'IA.</div>
+            <div class="draggable" draggable="true" id="bad6">Un élève utilise l'IA pour écrire un poème et finit avec un texte sans personnalité.</div>
+        </div>
+        <div class="column">
+            <h3>Bonnes Utilisations</h3>
+            <div class="droppable" id="goodA">A. Utiliser l'IA pour organiser ses idées mais rédiger son texte lui-même.</div>
+            <div class="droppable" id="goodB">B. Demander une explication détaillée à l'IA et vérifier si on a bien compris.</div>
+            <div class="droppable" id="goodC">C. Recouper les informations fournies par l'IA avec des sources fiables.</div>
+            <div class="droppable" id="goodD">D. Vérifier si les métiers listés par l'IA sont équilibrés en termes de diversité.</div>
+            <div class="droppable" id="goodE">E. Éviter de partager ses informations personnelles avec une IA.</div>
+            <div class="droppable" id="goodF">F. Utiliser l'IA pour trouver des idées mais écrire un poème original.</div>
+        </div>
+    </div>
+    <button onclick="checkAnswers()">Vérifier les réponses</button>
+    <p id="result"></p>
+
+    <script>
+        const draggables = document.querySelectorAll('.draggable');
+        const droppables = document.querySelectorAll('.droppable');
+        let draggedElement = null;
+
+        // Pour chaque élément draggable
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', (e) => {
+                draggedElement = draggable;
+                draggable.classList.add('dragging');
+                e.dataTransfer.setData('text/plain', draggable.id);
+            });
+
+            draggable.addEventListener('dragend', () => {
+                draggable.classList.remove('dragging');
+                draggedElement = null;
+            });
+        });
+
+        // Pour chaque zone de dépôt
+        droppables.forEach(droppable => {
+            droppable.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                droppable.classList.add('drag-over');
+            });
+
+            droppable.addEventListener('dragleave', () => {
+                droppable.classList.remove('drag-over');
+            });
+
+            droppable.addEventListener('drop', (e) => {
+                e.preventDefault();
+                droppable.classList.remove('drag-over');
+                
+                const draggedId = e.dataTransfer.getData('text/plain');
+                const draggedItem = document.getElementById(draggedId);
+                
+                // Si la zone de dépôt contient déjà un élément
+                if (droppable.children.length > 0 && droppable.children[0].classList.contains('draggable')) {
+                    // Retourner l'élément existant à la colonne de gauche
+                    const existingItem = droppable.children[0];
+                    document.getElementById('bad-column').appendChild(existingItem);
+                }
+                
+                // Déplacer le nouvel élément dans la zone de dépôt
+                droppable.appendChild(draggedItem);
+            });
+        });
+
+        function checkAnswers() {
+            const correctMatches = {
+                'bad1': 'goodA',
+                'bad2': 'goodB',
+                'bad3': 'goodC',
+                'bad4': 'goodD',
+                'bad5': 'goodE',
+                'bad6': 'goodF'
+            };
+
+            let correctCount = 0;
+            droppables.forEach(dropzone => {
+                if (dropzone.firstElementChild && 
+                    correctMatches[dropzone.firstElementChild.id] === dropzone.id) {
+                    correctCount++;
+                }
+            });
+
+            const resultElement = document.getElementById('result');
+            resultElement.textContent = `Tu as ${correctCount}/6 réponses correctes !`;
+            resultElement.style.fontSize = '18px';
+            resultElement.style.fontWeight = 'bold';
+            resultElement.style.marginTop = '10px';
+        }
+    </script>
+</body>
+</html>
+Last edited just now
